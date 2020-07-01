@@ -897,72 +897,86 @@ U8.0: U8
 
 // Increments a u8
 U8.inc(a: U8): U8
-  get a_val = a
-  U8.new(Word.inc<>(a_val))
+  get a.word = a
+  U8.new(Word.inc<8>(a.word))
 
-// TODO
 U8.add(a: U8, b: U8): U8
-  U8.add(a, b)
+  get a.word = a  
+  get b.word = b
+  U8.new(Word.add<8>(a.word, b.word))
 
-// TODO
 U8.sub(a: U8, b: U8): U8
-  U8.sub(a, b)
+  get a.word = a  
+  get b.word = b
+  U8.new(Word.sub<8>(a.word, b.word))
 
-// TODO
 U8.mul(a: U8, b: U8): U8
-  U8.mul(a, b)
+  get a.word = a  
+  get b.word = b
+  U8.new(Word.mul<8>(a.word, b.word))
 
-// TODO
 U8.div(a: U8, b: U8): U8
-  U8.div(a, b)
+  get a.word = a  
+  get b.word = b
+  U8.new(Word.div<8>(a.word, b.word))
 
-// TODO
 U8.mod(a: U8, b: U8): U8
-  U8.mod(a, b)
+  get a.word = a  
+  get b.word = b
+  U8.new(Word.mod<8>(a.word, b.word))
 
-// TODO
 U8.pow(a: U8, b: U8): U8
-  U8.pow(a, b)
+  get a.word = a  
+  get b.word = b
+  U8.new(Word.pow<8>(a.word, b.word))
 
-// TODO
 U8.ltn(a: U8, b: U8): Bool
-  case a: | case b: | Word.ltn<8>(a.word, b.word);;
+  get a.word = a  
+  get b.word = b
+  Word.ltn<8>(a.word, b.word)
 
-// TODO
 U8.lte(a: U8, b: U8): Bool
-  case a: | case b: | Word.lte<8>(a.word, b.word);;
+  get a.word = a  
+  get b.word = b
+  Word.lte<8>(a.word, b.word)
 
-// TODO
 U8.eql(a: U8, b: U8): Bool
-  case a: | case b: | Word.eql<8>(a.word, b.word);;
+  get a.word = a  
+  get b.word = b
+  Word.eql<8>(a.word, b.word)
 
-// TODO
 U8.gte(a: U8, b: U8): Bool
-  case a: | case b: | Word.gte<8>(a.word, b.word);;
+  get a.word = a  
+  get b.word = b
+  Word.gte<8>(a.word, b.word)
 
-// TODO
 U8.gtn(a: U8, b: U8): Bool
-  case a: | case b: | Word.gtn<8>(a.word, b.word);;
+  get a.word = a  
+  get b.word = b
+  Word.gtn<8>(a.word, b.word)
 
-// TODO
 U8.shr(n: Nat, a: U8): U8
-  U8.shr(n, a)
+  get a.word = a  
+  U8.new(Word.shift_right<8>(n, a.word))
 
-// TODO
 U8.shl(n: Nat, a: U8): U8
-  U8.shl(n, a)
+  get a.word = a  
+  U8.new(Word.shift_left<8>(n, a.word))
 
-// TODO
 U8.and(a: U8, b: U8): U8
-  U8.and(a, b)
+  get a.word = a  
+  get b.word = b
+  U8.new(Word.and<8>(a.word, b.word))
 
-// TODO
 U8.or(a: U8, b: U8): U8
-  U8.or(a, b)
+  get a.word = a  
+  get b.word = b
+  U8.new(Word.or<8>(a.word, b.word))
 
-// TODO
 U8.xor(a: U8, b: U8): U8
-  U8.xor(a, b)
+  get a.word = a  
+  get b.word = b
+  U8.new(Word.xor<8>(a.word, b.word))
 
 // U16 zero
 U16.0: U16
@@ -970,72 +984,108 @@ U16.0: U16
 
 // Increments a u16
 U16.inc(a: U16): U16
-  get a_val = a
-  U16.new(Word.inc<>(a_val))
+  get a.word = a
+  U16.new(Word.inc<16>(a.word))
 
-// TODO
+U16.to_bits(a: U16): Bits 
+  get a.word = a 
+  Word.to_bits<16>(a.word)
+
+U16.to_nat(a: U16): Nat
+  get a.word = a 
+  Word.to_nat<16>(a.word)
+
+U16.to_u32(a: U16): U32
+  get a.word = a 
+  U32.new(Word.trim<16>(32, a.word))
+
+U16.parse_hex(str: String): U16 
+  U16.new(Word.from_bits(16, Bits.parse_hex(str)))
+
 U16.add(a: U16, b: U16): U16
-  U16.add(a, b)
+  get a.word = a  
+  get b.word = b
+  U16.new(Word.add<16>(a.word, b.word))
 
-// TODO
 U16.sub(a: U16, b: U16): U16
-  U16.sub(a, b)
+  get a.word = a  
+  get b.word = b
+  U16.new(Word.sub<16>(a.word, b.word))
 
-// TODO
 U16.mul(a: U16, b: U16): U16
-  U16.mul(a, b)
+  get a.word = a  
+  get b.word = b
+  U16.new(Word.mul<16>(a.word, b.word))
 
-// TODO
 U16.div(a: U16, b: U16): U16
-  U16.div(a, b)
+  get a.word = a  
+  get b.word = b
+  U16.new(Word.div<16>(a.word, b.word))
 
-// TODO
+U16.concat(a: U16, b: U16): U32
+  get a.word = a
+  get b.word = b 
+  U32.new(Word.concat<16,16>(a.word, b.word))
+
 U16.mod(a: U16, b: U16): U16
-  U16.mod(a, b)
+  get a.word = a  
+  get b.word = b
+  U16.new(Word.mod<16>(a.word, b.word))
 
-// TODO
 U16.pow(a: U16, b: U16): U16
-  U16.pow(a, b)
+  get a.word = a  
+  get b.word = b
+  U16.new(Word.pow<16>(a.word, b.word))
 
-// TODO
 U16.ltn(a: U16, b: U16): Bool
-  case a: | case b: | Word.ltn<16>(a.word, b.word);;
+  get a.word = a  
+  get b.word = b
+  Word.ltn<16>(a.word, b.word)
 
-// TODO
 U16.lte(a: U16, b: U16): Bool
-  case a: | case b: | Word.lte<16>(a.word, b.word);;
+  get a.word = a  
+  get b.word = b
+  Word.lte<16>(a.word, b.word)
 
-// TODO
 U16.eql(a: U16, b: U16): Bool
-  case a: | case b: | Word.eql<16>(a.word, b.word);;
+  get a.word = a  
+  get b.word = b
+  Word.eql<16>(a.word, b.word)
 
-// TODO
 U16.gte(a: U16, b: U16): Bool
-  case a: | case b: | Word.gte<16>(a.word, b.word);;
+  get a.word = a  
+  get b.word = b
+  Word.gte<16>(a.word, b.word)
 
-// TODO
 U16.gtn(a: U16, b: U16): Bool
-  case a: | case b: | Word.gtn<16>(a.word, b.word);;
+  get a.word = a  
+  get b.word = b
+  Word.gtn<16>(a.word, b.word)
 
-// TODO
 U16.shr(n: U16, a: U16): U16
-  U16.shr(n, a)
+  get a.word = a
+  let n_nat  = U16.to_nat(n)   
+  U16.new(Word.shift_right<16>(n_nat, a.word))
 
-// TODO
 U16.shl(n: U16, a: U16): U16
-  U16.shl(n, a)
+  get a.word = a  
+  let n_nat  = U16.to_nat(n) 
+  U16.new(Word.shift_left<16>(n_nat, a.word))
 
-// TODO
 U16.and(a: U16, b: U16): U16
-  U16.and(a, b)
+  get a.word = a  
+  get b.word = b
+  U16.new(Word.and<16>(a.word, b.word))
 
-// TODO
 U16.or(a: U16, b: U16): U16
-  U16.or(a, b)
+  get a.word = a  
+  get b.word = b
+  U16.new(Word.or<16>(a.word, b.word))
 
-// TODO
 U16.xor(a: U16, b: U16): U16
-  U16.xor(a, b)
+  get a.word = a  
+  get b.word = b
+  U16.new(Word.xor<16>(a.word, b.word))
 
 // U32 zero
 U32.0: U32
@@ -1043,72 +1093,104 @@ U32.0: U32
 
 // Increments a u32
 U32.inc(a: U32): U32
-  get a_val = a 
-  U32.new(Word.inc<>(a_val))
+  get a.word = a 
+  U32.new(Word.inc<32>(a.word))
 
-// TODO
+U32.to_bits(a: U32): Bits
+  get a.word = a 
+  Word.to_bits<32>(a.word)
+
+U32.to_nat(a: U32): Nat 
+  get a.word = a 
+  Word.to_nat<32>(a.word)
+
+U32.parse_hex(str: String): U32
+  U32.new(Word.from_bits(32, Bits.parse_hex(str)))
+
+U32.concat(a: U32, b: U32): U64 
+  get a.word = a  
+  get b.word = b
+  U64.new(Word.concat<32,32>(a.word, b.word))
+
 U32.add(a: U32, b: U32): U32
-  U32.add(a, b)
+  get a.word = a  
+  get b.word = b
+  U32.new(Word.add<32>(a.word, b.word))
 
-// TODO
 U32.sub(a: U32, b: U32): U32
-  U32.sub(a, b)
+  get a.word = a  
+  get b.word = b
+  U32.new(Word.sub<32>(a.word, b.word))
 
-// TODO
 U32.mul(a: U32, b: U32): U32
-  U32.mul(a, b)
+  get a.word = a  
+  get b.word = b
+  U32.new(Word.mul<32>(a.word, b.word))
 
-// TODO
 U32.div(a: U32, b: U32): U32
-  U32.div(a, b)
+  get a.word = a  
+  get b.word = b
+  U32.new(Word.div<32>(a.word, b.word))
 
-// TODO
 U32.mod(a: U32, b: U32): U32
-  U32.mod(a, b)
+  get a.word = a  
+  get b.word = b
+  U32.new(Word.mod<32>(a.word, b.word))
 
-// TODO
 U32.pow(a: U32, b: U32): U32
-  U32.pow(a, b)
+  get a.word = a  
+  get b.word = b
+  U32.new(Word.pow<32>(a.word, b.word))
 
-// TODO
 U32.ltn(a: U32, b: U32): Bool
-  case a: | case b: | Word.ltn<32>(a.word, b.word);;
+  get a.word = a  
+  get b.word = b
+  Word.ltn<32>(a.word, b.word)
 
-// TODO
 U32.lte(a: U32, b: U32): Bool
-  case a: | case b: | Word.lte<32>(a.word, b.word);;
+  get a.word = a  
+  get b.word = b
+  Word.lte<32>(a.word, b.word)
 
-// TODO
 U32.eql(a: U32, b: U32): Bool
-  case a: | case b: | Word.eql<32>(a.word, b.word);;
+  get a.word = a  
+  get b.word = b
+  Word.eql<32>(a.word, b.word)
 
-// TODO
 U32.gte(a: U32, b: U32): Bool
-  case a: | case b: | Word.gte<32>(a.word, b.word);;
+  get a.word = a  
+  get b.word = b
+  Word.gte<32>(a.word, b.word)
 
-// TODO
 U32.gtn(a: U32, b: U32): Bool
-  case a: | case b: | Word.gtn<32>(a.word, b.word);;
+  get a.word = a  
+  get b.word = b
+  Word.gtn<32>(a.word, b.word)
 
-// TODO
 U32.shr(n: U32, a: U32): U32
-  U32.shr(n, a)
+  get a.word = a  
+  let n_nat  = U32.to_nat(n)
+  U32.new(Word.shift_right<32>(n_nat, a.word))
 
-// TODO
 U32.shl(n: U32, a: U32): U32
-  U32.shl(n, a)
+  get a.word = a  
+  let n_nat  = U32.to_nat(n)
+  U32.new(Word.shift_left<32>(n_nat, a.word))
 
-// TODO
 U32.and(a: U32, b: U32): U32
-  U32.and(a, b)
+  get a.word = a  
+  get b.word = b
+  U32.new(Word.and<32>(a.word, b.word))
 
-// TODO
 U32.or(a: U32, b: U32): U32
-  U32.or(a, b)
+  get a.word = a  
+  get b.word = b
+  U32.new(Word.or<32>(a.word, b.word))
 
-// TODO
 U32.xor(a: U32, b: U32): U32
-  U32.xor(a, b)
+  get a.word = a  
+  get b.word = b
+  U32.new(Word.xor<32>(a.word, b.word))
 
 // TODO
 U32.slice(i: U32, j: U32, str: String): String
@@ -1148,106 +1230,138 @@ U32.for<S: Type>(state: S, from: U32, til: U32, func: U32 -> S -> S): S
 U64.0: U64
   U64.new(Word.zero(64))
 
+U64.to_bits(a: U64): Bits 
+  get a.word = a 
+  Word.to_bits<64>(a.word)
+
+U64.to_nat(a: U64): Nat 
+  get a.word = a 
+  Word.to_nat<64>(a.word)
+
 // Increments a u64
 U64.inc(a: U64): U64
-  get a_val = a 
-  U64.new(Word.inc<>(a_val))
+  get a.word = a 
+  U64.new(Word.inc<64>(a.word))
 
-// TODO
 U64.add(a: U64, b: U64): U64
-  U64.add(a, b)
+  get a.word = a 
+  get b.word = b 
+  U64.new(Word.add<64>(a.word, b.word))
 
-// TODO
 U64.sub(a: U64, b: U64): U64
-  U64.sub(a, b)
+  get a.word = a 
+  get b.word = b 
+  U64.new(Word.sub<64>(a.word, b.word))
 
-// TODO
 U64.mul(a: U64, b: U64): U64
-  U64.mul(a, b)
+  get a.word = a 
+  get b.word = b 
+  U64.new(Word.mul<64>(a.word, b.word))
 
-// TODO
 U64.div(a: U64, b: U64): U64
-  U64.div(a, b)
+  get a.word = a 
+  get b.word = b 
+  U64.new(Word.div<64>(a.word, b.word))
 
-// TODO
 U64.mod(a: U64, b: U64): U64
-  U64.mod(a, b)
+  get a.word = a 
+  get b.word = b 
+  U64.new(Word.mod<64>(a.word, b.word))
 
-// TODO
 U64.pow(a: U64, b: U64): U64
-  U64.pow(a, b)
+  get a.word = a 
+  get b.word = b 
+  U64.new(Word.pow<64>(a.word, b.word))
 
-// TODO
 U64.ltn(a: U64, b: U64): Bool
-  case a: | case b: | Word.ltn<64>(a.word, b.word);;
+  get a.word = a 
+  get b.word = b 
+  Word.ltn<64>(a.word, b.word)
 
-// TODO
 U64.lte(a: U64, b: U64): Bool
-  case a: | case b: | Word.lte<64>(a.word, b.word);;
+  get a.word = a 
+  get b.word = b 
+  Word.lte<64>(a.word, b.word)
 
-// TODO
 U64.eql(a: U64, b: U64): Bool
-  case a: | case b: | Word.eql<64>(a.word, b.word);;
+  get a.word = a 
+  get b.word = b 
+  Word.eql<64>(a.word, b.word)
 
-// TODO
 U64.gte(a: U64, b: U64): Bool
-  case a: | case b: | Word.gte<64>(a.word, b.word);;
+  get a.word = a 
+  get b.word = b 
+  Word.gte<64>(a.word, b.word)
 
-// TODO
 U64.gtn(a: U64, b: U64): Bool
-  case a: | case b: | Word.gtn<64>(a.word, b.word);;
+  get a.word = a 
+  get b.word = b 
+  Word.gtn<64>(a.word, b.word)
 
-// TODO
 U64.shr(n: U64, a: U64): U64
-  U64.shr(n, a)
+  get a.word = a
+  let n_nat  = U64.to_nat(n) 
+  U64.new(Word.shift_right<64>(n_nat, a.word))
 
-// TODO
 U64.shl(n: U64, a: U64): U64
-  U64.shl(n, a)
+  get a.word = a
+  let n_nat  = U64.to_nat(n) 
+  U64.new(Word.shift_left<64>(n_nat, a.word))
 
-// TODO
 U64.and(a: U64, b: U64): U64
-  U64.and(a, b)
+  get a.word = a 
+  get b.word = b 
+  U64.new(Word.and<64>(a.word, b.word))
 
-// TODO
 U64.or(a: U64, b: U64): U64
-  U64.or(a, b)
+  get a.word = a 
+  get b.word = b 
+  U64.new(Word.or<64>(a.word, b.word))
 
-// TODO
 U64.xor(a: U64, b: U64): U64
-  U64.xor(a, b)
+  get a.word = a 
+  get b.word = b 
+  U64.new(Word.xor<64>(a.word, b.word))
 
-// TODO
+U64.parse_hex(str: String): U64 
+  U64.new(Word.from_bits(64, Bits.parse_hex(str)))
+
 F64.0: F64
-  F64.0
+  F64.new(Word.zero(64))
 
-// TODO
 F64.inc(a: F64): F64
-  F64.inc(a)
+  get a.word = a 
+  F64.new(Word.inc<64>(a.word))
 
-// TODO
 F64.add(a: F64, b: F64): F64
-  F64.add(a, b)
+  get a.word = a 
+  get b.word = b 
+  F64.new(Word.add<64>(a.word, b.word))
 
-// TODO
 F64.sub(a: F64, b: F64): F64
-  F64.sub(a, b)
+  get a.word = a 
+  get b.word = b 
+  F64.new(Word.sub<64>(a.word, b.word))
 
-// TODO
 F64.mul(a: F64, b: F64): F64
-  F64.mul(a, b)
+  get a.word = a 
+  get b.word = b 
+  F64.new(Word.mul<64>(a.word, b.word))
 
-// TODO
 F64.div(a: F64, b: F64): F64
-  F64.div(a, b)
+  get a.word = a 
+  get b.word = b 
+  F64.new(Word.div<64>(a.word, b.word))
 
-// TODO
 F64.mod(a: F64, b: F64): F64
-  F64.mod(a, b)
+  get a.word = a 
+  get b.word = b 
+  F64.new(Word.mod<64>(a.word, b.word))
 
-// TODO
 F64.pow(a: F64, b: F64): F64
-  F64.pow(a, b)
+  get a.word = a 
+  get b.word = b 
+  F64.new(Word.pow<64>(a.word, b.word))
 
 // TODO
 F64.cos(a: F64): F64
@@ -1283,29 +1397,74 @@ F64.rotate2d(x: F64, y: F64, a: F64): Pair(F64, F64)
   let y2 = F64.add(F64.mul(x, F64.sin(a)), F64.mul(y, F64.cos(a)))
   Pair.new<,>(x2, y2)
 
-// TODO
 F64.ltn(a: F64, b: F64): Bool
-  F64.ltn(a, b)
+  get a.word = a 
+  get b.word = b 
+  Word.ltn<64>(a.word, b.word)
 
-// TODO
 F64.lte(a: F64, b: F64): Bool
-  F64.lte(a, b)
+  get a.word = a 
+  get b.word = b 
+  Word.lte<64>(a.word, b.word)
 
-// TODO
 F64.eql(a: F64, b: F64): Bool
-  F64.eql(a, b)
+  get a.word = a 
+  get b.word = b 
+  Word.eql<64>(a.word, b.word)
 
-// TODO
 F64.gte(a: F64, b: F64): Bool
-  F64.gte(a, b)
+  get a.word = a 
+  get b.word = b 
+  Word.gte<64>(a.word, b.word)
 
-// TODO
 F64.gtn(a: F64, b: F64): Bool
-  F64.gtn(a, b)
+  get a.word = a 
+  get b.word = b 
+  Word.gtn<64>(a.word, b.word)
 
 // TODO
 F64.to_u32(a: F64): U32
   F64.to_u32(a)
+
+T F64.V3
+| F64.V3.new(x: F64, y: F64, z: F64);
+
+F64.V3.eql(a: F64.V3, b: F64.V3): Bool
+  get a.x a.y a.z = a
+  get b.x b.y b.z = b
+  let same_x = F64.eql(a.x, b.x)
+  let same_y = F64.eql(a.y, b.y)
+  let same_z = F64.eql(a.z, b.z)
+  Bool.and(same_x, Bool.and(same_y, same_z))
+
+F64.V3.get_x(v: F64.V3): F64
+  get v.x v.y v.z = v 
+  v.x
+  
+F64.V3.get_y(v: F64.V3): F64
+  get v.x v.y v.z = v 
+  v.y
+  
+F64.V3.get_z(v: F64.V3): F64
+  get v.x v.y v.z = v 
+  v.z
+
+F64.V3.len(v: F64.V3): F64
+  get v.x v.y v.z = v 
+  let sqr  = F64.0
+  let sqr  = F64.add(sqr, F64.mul(v.x, v.x))
+  let sqr  = F64.add(sqr, F64.mul(v.y, v.y))
+  let sqr  = F64.add(sqr, F64.mul(v.z, v.z))
+  let sqr  = F64.pow(sqr, 0.5)
+  sqr
+
+F64.V3.add(a: F64.V3, b: F64.V3): F64.V3 
+  get a.x a.y a.z = a
+  get b.x b.y b.z = b
+  let c.x = F64.add(a.x, a.x)
+  let c.y = F64.add(a.y, b.y)
+  let c.z = F64.add(a.z, b.z)
+  F64.V3.new(c.x, c.y, c.z)
 
 // Creates a char from 16 bits
 Char.new
@@ -1332,6 +1491,46 @@ Char.new
   let k0 = bF<>(Word.0<>, Word.1<>)
   let kx = Word.nil
   U16.new(k0(k1(k2(k3(k4(k5(k6(k7(k8(k9(kA(kB(kC(kD(kE(kF(kx)))))))))))))))))
+
+Char.newline: Char
+  Char.new(
+    Bit.0, Bit.0, Bit.0, Bit.0,
+    Bit.0, Bit.0, Bit.0, Bit.0,
+    Bit.0, Bit.0, Bit.0, Bit.0,
+    Bit.1, Bit.0, Bit.1, Bit.0)
+
+// Receives a hex char (0-9, a-f, A-F) and returns its value.
+Char.hex_value16(chr: Char): U16
+  def U16.add10((x0)
+    def x1 = U16.inc(U16.inc(U16.inc(U16.inc(U16.inc(x0)))))
+    def x2 = U16.inc(U16.inc(U16.inc(U16.inc(U16.inc(x1)))))
+    x2) :: U16 -> U16
+  if Bool.and(U16.gte(chr,'0'),U16.lte(chr,'9')) then
+    U16.sub(chr,'0')
+  else if Bool.and(U16.gte(chr,'a'),U16.lte(chr,'f')) then
+    U16.add10(U16.sub(chr,'a'))
+  else if Bool.and(U16.gte(chr,'A'),U16.lte(chr,'F')) then
+    U16.add10(U16.sub(chr,'A'))
+  else
+    U16.0
+
+Char.hex_value32(chr: Char): U32
+  U16.to_u32(Char.hex_value16(chr))
+
+Char.hex_value(chr: Char): Nat
+  U32.to_nat(Char.hex_value32(chr))
+
+Char.parse.type(str: String): Type
+  case str:
+  | Unit;
+  | Char;
+
+// Parses a character. Example: `Char.parse("x")`
+Char.parse(str: String): Char.parse.type(str)
+  case str:
+  | Unit.new;
+  | str.head;
+  : Char.parse.type(str.self);
 
 // Folds over a string
 String.fold(str: String)<P: Type>(nil: P, cons: Char -> P -> P): P
@@ -1617,3 +1816,176 @@ App.demo.0: App(Pair(U32,U32))
     | ukey => state;
     | post => state;
   App.new<>(init, draw, when)
+
+
+Bits.parse_hex(str: String): Bits
+  Bits.parse_hex.go(str, Bits.nil)
+
+Bits.parse_hex.go(str: String, res: Bits): Bits
+  case str:
+  | res;
+  | let b0000 = Bits.0(Bits.0(Bits.0(Bits.0(Bits.nil))))
+    let bhead = Nat.apply<Bits>(Char.hex_value(str.head), Bits.inc, b0000)
+    Bits.parse_hex.go(str.tail, Bits.concat(bhead, res));
+
+
+
+// TODO: improve syntax
+Word.add.aux: <size: Nat> -> Word(size) -> Word(size) -> Bool -> Word(size)
+  <size> (a) (b) (c)
+  ( a<(a.size) () Word(a.size) -> Word(a.size)>
+  | (b) Word.nil;
+  | <a.size> (a.pred) (b)
+    ( b<(b.size) () Word(Nat.pred(b.size)) -> Word(b.size)>
+    | (a.pred)
+      Word.nil;
+    | <b.size> (b.pred) (a.pred)
+      c<() Unit -> Word(Nat.succ(b.size))>
+      | () Word.1<b.size>(Word.add.aux<b.size>(a.pred)(b.pred)(Bool.false));  // a=0 b=0 c=0
+      | () Word.0<b.size>(Word.add.aux<b.size>(a.pred)(b.pred)(Bool.false));
+      | Unit.new;; // a=0 b=0 c=1
+    | <b.size> (b.pred) (a.pred)
+      c<() Unit -> Word(Nat.succ(b.size))>
+      | () Word.0<b.size>(Word.add.aux<b.size>(a.pred)(b.pred)(Bool.true));   // a=0 b=1 c=0
+      | () Word.1<b.size>(Word.add.aux<b.size>(a.pred)(b.pred)(Bool.false));  // a=0 b=1 c=1
+      | Unit.new;
+    ;)(a.pred);
+  | <a.size> (a.pred) (b)
+    ( b<(b.size) () Word(Nat.pred(b.size)) -> Word(b.size)>
+    | (a.pred) Word.nil;
+    | <b.size> (b.pred) (a.pred)
+      c<() Unit -> Word(Nat.succ(b.size))>
+      | () Word.0<b.size>(Word.add.aux<b.size>(a.pred)(b.pred)(Bool.true));   // a=1 b=0 c=0
+      | () Word.1<b.size>(Word.add.aux<b.size>(a.pred)(b.pred)(Bool.false));
+      | Unit.new;; // a=1 b=0 c=1
+    | <b.size> (b.pred) (a.pred)
+      c<() Unit -> Word(Nat.succ(b.size))>
+      | () Word.1<b.size>(Word.add.aux<b.size>(a.pred)(b.pred)(Bool.true));   // a=1 b=1 c=0
+      | () Word.0<b.size>(Word.add.aux<b.size>(a.pred)(b.pred)(Bool.true));   // a=1 b=1 c=1
+      | Unit.new;
+    ;)(a.pred)
+  ;)(b)
+
+Word.add<size: Nat>(a: Word(size), b: Word(size)): Word(size)
+  Word.add.aux<size>(a, b, Bool.false)
+
+Word.and<size: Nat>(a: Word(size), b: Word(size)): Word(size)
+  Word.and<size>(a, b)
+
+Word.concat
+  : <a_size: Nat> ->
+    <b_size: Nat> ->
+    Word(a_size) ->
+    Word(b_size) ->
+    Word(Nat.add(a_size)(b_size))
+  <a_size> <b_size> (a) (b)
+  a<(a_size) () Word(Nat.add(a_size)(b_size))>
+  | b;
+  | <a.size> (a.pred)
+    let rest = Word.concat<a.size><b_size>(a.pred)(b)
+    Word.0<Nat.add(a.size)(b_size)>(rest);
+  | <a.size> (a.pred)
+    let rest = Word.concat<a.size><b_size>(a.pred)(b)
+    Word.1<Nat.add(a.size)(b_size)>(rest);
+
+// TODO word division
+Word.div: <size: Nat> -> Word(size) -> Word(size) -> Word(size)
+  Word.div
+
+Word.drop: <size: Nat> -> (n: Nat) -> Word(Nat.add(n)(size)) -> Word(size)
+  <size> (n) (word)
+  n<(n) Word(Nat.add(n)(size)) -> Word(size)>
+  | (word) word;
+  | (n.pred) (word)
+    let word.pred = Word.pred<Nat.add(n.pred)(size)>(word)
+    Word.drop<size>(n.pred)(word.pred);
+  | word;
+
+Word.from_bits: (size: Nat) -> Bits -> Word(size)
+  (size) (bits)
+  size<(size) Word(size)>
+  | Word.nil;
+  | (size.pred)
+    bits<() Word(Nat.succ(size.pred))>
+    | Word.0<size.pred>(Word.from_bits(size.pred)(Bits.nil));
+    | (bits.pred) Word.0<size.pred>(Word.from_bits(size.pred)(bits.pred));
+    | (bits.pred) Word.1<size.pred>(Word.from_bits(size.pred)(bits.pred));;
+
+
+// TODO word modulus
+Word.mod: <size: Nat> -> Word(size) -> Word(size) -> Word(size)
+  Word.mod
+
+// TODO Multiplies two words
+Word.mul: <size: Nat> -> Word(size) -> Word(size) -> Word(size)
+  Word.mul
+
+// TODO bitwise OR between two words
+Word.or: <size: Nat> -> Word(size) -> Word(size) -> Word(size)
+  Word.or
+
+Word.parse_hex: (size: Nat) -> String -> Word(size)
+  (size) (str)
+  Word.from_bits(size)(Bits.parse_hex(str))
+
+// TODO word exponentiation
+Word.pow: <size: Nat> -> Word(size) -> Word(size) -> Word(size)
+  Word.pow
+
+Word.pred: <size: Nat> -> Word(Nat.succ(size)) -> Word(size)
+  <size> (word)
+  word<(size) () Word(Nat.pred(size))>
+  | Word.nil;
+  | <word.size> (word.pred) word.pred;
+  | <word.size> (word.pred) word.pred;
+
+// TODO Bitwise-shifts a word left
+Word.shift_left: <size: Nat> -> Nat -> Word(size) -> Word(size)
+  Word.shift_left
+
+// TODO Bitwise-shifts a word right
+Word.shift_right: <size: Nat> -> Nat -> Word(size) -> Word(size)
+  Word.shift_right
+
+Word.sub: <size: Nat> -> Word(size) -> Word(size) -> Word(size)
+  Word.sub
+
+Word.to_bits: <size: Nat> -> Word(size) -> Bits
+  <size> (a)
+  a<() () Bits>
+  | Bits.nil;
+  | <size> (pred) Bits.0(Word.to_bits<size>(pred));
+  | <size> (pred) Bits.1(Word.to_bits<size>(pred));
+
+// TODO bitwise XOR between two words
+Word.xor: <size: Nat> -> Word(size) -> Word(size) -> Word(size)
+  Word.xor
+
+Word.nat_log2.go<size: Nat>(word: Word(size), c: Nat, n: Nat): Nat
+  case word:
+  | n;
+  | Word.nat_log2.go<word.size>(word.pred, Nat.succ(c), n);
+  | Word.nat_log2.go<word.size>(word.pred, Nat.succ(c), c);
+  
+Word.nat_log2<size: Nat>(word: Word(size)): Nat
+  Word.nat_log2.go<size>(word, 0, 0)
+
+Word.indl<P: Nat -> Type, m: Nat>
+(nil  : P(Nat.zero))
+(w0   : <n: Nat> -> P(n) -> P(Nat.succ(n)))
+(w1   : <n: Nat> -> P(n) -> P(Nat.succ(n)))
+(word : Word(m))
+: P(m)
+  case word:
+  | nil;
+  | def P   = (n) P(Nat.succ(n))
+    def nil = w0<Nat.zero>(nil)
+    def w0  = <x> w0<Nat.succ(x)>
+    def w1  = <x> w1<Nat.succ(x)>
+    Word.indl<P, word.size>(nil, w0, w1, word.pred);
+  | def P   = (n) P(Nat.succ(n))
+    def nil = w1<Nat.zero>(nil)
+    def w0  = <x> w0<Nat.succ(x)>
+    def w1  = <x> w1<Nat.succ(x)>
+    Word.indl<P, word.size>(nil, w0, w1, word.pred);
+  : P(word.size);
