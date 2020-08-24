@@ -1,0 +1,9 @@
+// drops n bits starting from the LSB
+Bits.drop(n: Nat, bs: Bits): Bits 
+  case n: 
+  | zero => bs;
+  | succ => 
+    case bs:
+    | Bits.nil => Bits.nil;
+    | Bits.0   => Bits.drop(n.pred, bs.pred);
+    | Bits.1   => Bits.drop(n.pred, bs.pred);;
