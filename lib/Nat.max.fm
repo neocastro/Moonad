@@ -1,0 +1,5 @@
+Nat.max(x: Nat, y: Nat): Nat 
+  case Nat.cmp(x,y):
+  | ltn => y;
+  | eql => x;
+  | gtn => x;
