@@ -1,0 +1,9 @@
+// takes n Bits starting from the LSB
+Bits.take(n: Nat, bs: Bits): Bits
+  case n:
+  | zero => Bits.nil;
+  | succ => 
+    case bs:
+    | Bits.nil => Bits.nil;
+    | Bits.0   => Bits.0(Bits.take(n.pred, bs.pred));
+    | Bits.1   => Bits.1(Bits.take(n.pred, bs.pred));;
