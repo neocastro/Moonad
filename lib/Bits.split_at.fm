@@ -1,0 +1,3 @@
+// Splits the bitstring at the n-th bit, returning the resulting pair
+Bits.split_at(n: Nat, bs: Bits): Pair(Bits,Bits)
+  Pair.new<Bits,Bits>(Bits.take(n, bs), Bits.drop(n, bs))
