@@ -1,4 +1,54 @@
-// TODO
 // Multiplies two bitstrings.
+// Karatsuba method ~ O(n^1.59)
 Bits.mul(a: Bits, b: Bits): Bits
-  Bits.mul(a, b)
+  Bits.mul(a,b)
+//   let len_a   = Bits.length(a)
+//   let len_b   = Bits.length(b)
+
+//   case Nat.cmp(len_a, len_b):
+//   | ltn => ?ltn;
+//   // if the bitstrings are of the same size
+//   // we need to check if their size is even
+//   | eql => 
+//     case Nat.odd(len_a):
+//     | true  => ?eql_odd;
+//     // if the size is even, we just split them in half
+//     // and multiply using a divide & conquer approach
+//     | false => 
+//       // unless its a single-digit bitstring 
+//       Nat.eql(len_a, 1):
+//       | true  => Bits.mul.single_digit(a, b);
+//       | false =>
+//         let half          = Nat.div(len_a, 2)
+//         let splitted_a    = Bits.split_at(half, a)
+//         let splitted_b    = Bits.split_at(half, b)
+//         get lsbs_a msbs_a = splitted_a
+//         get lsbs_b msbs_b = splitted_b 
+//         let p_1 = Bits.mul(msbs_a, msbs_b)
+//         let p_2 = Bits.mul(lsbs_a, lsbs_b)
+//         let p_3 = Bits.mul(Bits.add(msbs_a, lsbs_a), Bits.add(msbs_b, lsbs_b))
+
+
+//       ;
+
+//     ;    
+//   ;
+//   | gtn => ?gtn
+
+// Bits.mul.single_digit(a: Bits, b: Bits): Bits
+//   case a:
+//   | Bits.nil => Bits.nil;
+//   | Bits.0   => 
+//     case b:
+//     // this case will never happen since we'll
+//     // make both bitstrings the same length
+//     | Bits.nil => Bits.nil;
+//     | Bits.0   => Bits.0(Bits.nil);
+//     | Bits.1   => Bits.0(Bits.nil);;
+//   | Bits.1 => 
+//     case b:
+//     // this case will never happen since we'll
+//     // make both bitstrings the same length
+//     | Bits.nil => Bits.nil;
+//     | Bits.0   => Bits.0(Bits.nil);
+//     | Bits.1   => Bits.1(Bits.nil);;

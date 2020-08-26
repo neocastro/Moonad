@@ -1,0 +1,5 @@
+Bits.flip(b: Bits): Bits
+  case b:
+  | Bits.nil => Bits.nil;
+  | Bits.0   => Bits.1(Bits.flip(b.pred));
+  | Bits.1   => Bits.0(Bits.flip(b.pred));

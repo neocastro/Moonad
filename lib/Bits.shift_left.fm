@@ -1,0 +1,2 @@
+Bits.shift_left(b: Bits): Bits
+  Bits.shift_left(b)
