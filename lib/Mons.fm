@@ -143,6 +143,44 @@ T Mons.Kind
 | Mons.PATH_BLOCKER;
 | Mons.FENCE(model: Nat, dir: Mons.Map.Dir.expanded);
 
+Mons.Kind.is_hero(kind: Mons.Kind): Bool 
+  case kind:
+  | VOID           => Bool.false;
+  | HERO           => Bool.true;
+  | GRASS          => Bool.false;
+  | GRASS_PLANT    => Bool.false;
+  | BUSH           => Bool.false;
+  | PLANT_0        => Bool.false;
+  | ELV_TERRAIN_00 => Bool.false;
+  | ELV_TERRAIN_01 => Bool.false;
+  | ELV_TERRAIN_02 => Bool.false;
+  | OCEAN          => Bool.false;
+  | TREE           => Bool.false;
+  | ROCK_PATH_C    => Bool.false;
+  | ROCK_PATH_M    => Bool.false;
+  | BATH           => Bool.false;
+  | BEHOLDER       => Bool.false;
+  | CRONI          => Bool.false;
+  | ELLIOT         => Bool.false;
+  | ESPECTRONUS    => Bool.false;
+  | GAKI           => Bool.false;
+  | GORR           => Bool.false;
+  | LAMURIA        => Bool.false;
+  | RAFIRE         => Bool.false;
+  | VARGOULI       => Bool.false;
+  | TUPITREE       => Bool.false;
+  | LELA           => Bool.false;
+  | MOSHY          => Bool.false;
+  | HOUSE          => Bool.false;
+  | CASTLE         => Bool.false;
+  | SAND_0         => Bool.false;
+  | SAND_1         => Bool.false;
+  | CHEST          => Bool.false;
+  | WATER          => Bool.false;
+  | WATER1_M       => Bool.false;
+  | PATH_BLOCKER   => Bool.false;
+  | FENCE          => Bool.false;
+
 // Sprites are centered at 128x128
 Mons.vox_mid: Pos32
   Pos32.new(128u, 128u, 0u) 
@@ -299,7 +337,7 @@ Mons.Map.set_list(pos: Pos32, objs: List(Mons.Object), map: Mons.Map): Mons.Map
 
 // Gets the tile stored on a position on the map
 Mons.Map.get_list(pos: Pos32, map: Mons.Map): List(Mons.Object)
-  case Map.get<>(U32.to_bits(Pos32.set_z(pos,0u)), map) as got:
+  case Map.get<>(U32.to_bits(pos), map) as got:
   | [];
   | got.value;
 
@@ -309,6 +347,10 @@ Mons.Map.get(pos: Pos32, idx: U32, map: Mons.Map): Mons.Object
   case List.at<>(U32.to_nat(idx), list) as got:
   | Mons.Object.void;
   | got.value;
+
+// Gets the first hero of a tile 
+Mons.Map.get_fst_hero(pos: Pos32, map: Mons.Map): Maybe(Mons.Object)
+  List.find<>(Mons.Kind.is_hero, Mons.Map.get_list(pos,map))
 
 // Sets the nth object of a tile
 Mons.Map.set(pos: Pos32, idx: U32, val: Mons.Object, map: Mons.Map): Mons.Map
@@ -835,9 +877,9 @@ Mons.Game.map_push(pos: Pos32, old_pos: Pos32, obj: Mons.Object, game: Mons.Game
   Mons.Game.set_map(map, game)
 
 // Update a Mons.Game by setting a new obj to a pos
-Mons.Game.map_set(pos: Pos32, obj: Mons.Object, game: Mons.Game): Mons.Game
+Mons.Game.map_set(pos: Pos32, idx: U32, obj: Mons.Object, game: Mons.Game): Mons.Game
   open game:
-  let map = Mons.Map.set(pos, obj, game.map)
+  let map = Mons.Map.set(pos, idx, obj, game.map)
   Mons.Game.set_map(map, game)
 
 // Computes a command from an user
