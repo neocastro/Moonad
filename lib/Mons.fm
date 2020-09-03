@@ -1136,12 +1136,17 @@ Mons.Object.tick(obj: Mons.Object): Mons.Object
 Mons.Game.tick_user(user: Word(160), pos: Pos32, game: Mons.Game): Mons.Game
   open game:
   let map = game.map
+  //pegar um obj do mapa agora precisa de um idx
   let obj = Mons.Map.get(pos, map)
   let obj = Mons.Object.tick(obj)
   open obj:
   let old_pos = pos
   let new_pos = Mons.Dir.move(obj.dir, pos)
-  let trg = Mons.Map.get(new_pos, map)
+  // ao invés de pegar diretamente, eu precisaria de um idx: U32
+  // mas como oq queremos é colocar o heroi no topo da pilha, basta ver se 
+  // o elemento do topo da pilha destino bloqueia ou não
+  // let trg = Mons.Map.get(new_pos, map)
+  let trg = Pair.snd<,>(Mons.Map.pop(new_pos, map))
   open trg:
   let is_walking = Mons.Object.is_walking(obj)
   let is_movfree = Mons.Object.is_free_to_move(obj)
