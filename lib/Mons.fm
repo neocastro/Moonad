@@ -95,12 +95,6 @@ T Mons.Attr
 Mons.Map: Type
   Map(List(Mons.Object))
 
-//let map = Map.new<>
-//let objs = [graminha, arbusto, heroi]
-//let map = Map.set(Pos32.to_bits(Pos32.new(2000u,2000u,0u)), objs, map)
-//map
-
-
 // The global game state
 T Mons.Game
 | Mons.Game.new(
@@ -111,11 +105,15 @@ T Mons.Game
 );
 
 T Mons.Screen
-| Mons.Screen.game(cmd: Char); // cmd: movement
+| Mons.Screen.explore; 
 | Mons.Screen.inventory(idx: U32);
-| Mons.Screen.capture_mon(
+| Mons.Screen.battle;
+| Mons.Screen.won_battle(
   idx: U32, // idx of the Mon to be replaced
   full_bag: Bool);
+| Mons.Screen.lost_battle;
+| Mons.Screen.portal;
+// | Mons.Screen.game_over;
 
 T Mons.Type
 | Mons.Type.normal;
@@ -820,7 +818,7 @@ Mons.Game.delete_adve_obj(
   game: Mons.Game): Mons.Game
   let game = Mons.Game.map_del(pos, adve_idx, game)
   let game = Mons.Game.map_set(pos, hero_idx, hero_obj, game)
-  Mons.Game.set_stt(Mons.Screen.game('.'), game)
+  Mons.Game.set_stt(Mons.Screen.explore, game)
   
 Mons.Game.move_hero_down(
   usr: Word(160), 
@@ -1012,8 +1010,61 @@ Mons.Game.map_del(pos: Pos32, idx: U32, game: Mons.Game): Mons.Game
   let map = Mons.Map.del(pos, idx, game.map)
   Mons.Game.set_map(map, game)
 
+Mons.cmd_to_skill_idx(cmd: Char): Maybe(Nat)
+  if U16.eql(cmd, 'U') then 
+    Maybe.some<>(0) 
+  else if U16.eql(cmd, 'I') then
+    Maybe.some<>(1) 
+  else if U16.eql(cmd, 'J') then
+    Maybe.some<>(2) 
+  else if U16.eql(cmd, 'K') then
+    Maybe.some<>(3) 
+  else 
+    Maybe.none<>
+
+// Mons.cast(pos: Pos32, source: U32, target: U32, skill: Mons.Skill, game: Mons.Game): Mons.Game 
+//get hero skills
+//get chosen skill 
+//get adve skills and random choice
+//apply effects
+//check if someone died
+//change to suitable screen (won/lost/battle) 
+Mons.Game.exec_turn(
+  cmd: Char,            // cmd used U/I/J/K
+  hero_pos: Pos32,      // hero position
+  hero_obj: Mons.Object,// hero object
+  adve_obj: Mons.Object,// enemy object 
+  game    : Mons.Game): Mons.Game 
+  open hero_obj:
+  open adve_obj:
+  let hero_idx       = 0u 
+  let adve_idx       = 1u 
+  let hero_skills    = Mons.Kind.get_skills(hero_obj.kin)
+  let hero_skill_idx = Mons.cmd_to_skill_idx(cmd) 
+  let adve_skills    = Mons.Kind.get_skills(adve_obj.kin)
+
+  case hero_skill_idx:
+  | none => game; // unreachable
+  | some =>
+    case List.at<>(hero_skill_idx.value, hero_skills) as hero_skill:
+    | none => game; //unreachable
+    | some => 
+      // TODO check who should attack first 
+      // TODO check for effects that take more than one turn
+      // apply hero skill
+      let game = Mons.cast(hero_pos, hero_idx, adve_idx, hero_skill.value, game)
+      // TODO insert AI here 
+      // apply enemy skill
+      let adve_skill = Mons.Skill.Dummy_hit;
+      let game = Mons.cast(hero_pos, adve_idx, hero_idx, adve_skill, game)
+      game 
+    ;
+  ;
+  
+
+
 // Computes a command from an user
-Mons.Game.cmd(cmd: Char, usr: Word(160), game: Mons.Game): Mons.Game
+Mons.Game.cmd(cmd: Char, usr: Word(160), game: Mons.Game): Mons.Game 
   let pos = Mons.Game.get_user_pos(usr, game)
   case pos:
   // New player
@@ -1024,173 +1075,259 @@ Mons.Game.cmd(cmd: Char, usr: Word(160), game: Mons.Game): Mons.Game
     game;
   // Existing player
   | open game:
-    let pos = pos.value
-    let hero_pair = Mons.Map.get_hero(pos, game.map)
-    let hero_obj  = Pair.fst<,>(hero_pair)
-    let hero_idx  = Pair.snd<,>(hero_pair)
-    let adve_idx  = 1u
+    let pos = pos.value 
+    get hero_obj hero_idx = Mons.Map.get_hero(pos, game.map)
+    let adve_idx = 1u 
     let adve_obj = Mons.Map.get(pos, adve_idx, game.map)
-    let is_battling = Mons.Object.is_battling(adve_obj, hero_obj)
-    let end_battle = Mons.Object.ended_battle(adve_obj, hero_obj)
-    let curr_mon = Mons.Object.get_current_mon(hero_obj)
-    open curr_mon: 
-    let skills = Mons.Kind.get_skills(curr_mon.kin)
-    // let game = Mons.test.add_bag(hero_obj, pos, 0u, game) // TEST - bag
-    // let game = Mons.test.add_boss(hero_obj, pos, 0u, game) // TEST - boss
-
-    open hero_obj:
-    open adve_obj:
-    // TODO let usr = Mons.Game.get_from_map(pos, game) // gets the object that used the command
-    // TODO let atks = Mons.Game.get_attack_list(usr.kin)... // gets the attack list of that usr
+    open hero_obj: 
     case game.stt as stt:
-    | game =>
-    // TODO remove - just testing dmg to hero to check heal eff
-    if U16.eql(cmd, 'T') then
-      if Mons.Object.is_obj_defeated(hero_obj) then
-        let hero_obj = Mons.Object.set_dmg(hero_obj, 0u)
-        Mons.Game.map_set(pos, hero_idx, hero_obj, game)
-      else if Mons.Object.is_obj_defeated(curr_mon) then game
-      else Mons.cast(pos, hero_idx, hero_idx, Mons.Skill.Dummy_hit, game)
-
-    else if U16.eql(cmd, 'U') then
-      if is_battling then
-        case List.at<>(0, skills) as skill:
-        | none => game;
-        | some => Mons.cast(pos, hero_idx, adve_idx, skill.value, game);
-      else game
-    else if U16.eql(cmd, 'I') then
-      if is_battling then
-        case List.at<>(1, skills) as skill:
-        | none => game;
-        | some => Mons.cast(pos, hero_idx, adve_idx, skill.value, game);
-      else game
-    else if U16.eql(cmd, 'J') then
-      if is_battling then
-        case List.at<>(2, skills) as skill:
-        | none => game;
-        | some => Mons.cast(pos, hero_idx, adve_idx, skill.value, game);
-      else game
-    else if U16.eql(cmd, 'K') then
-      if is_battling then
-        case List.at<>(3, skills) as skill:
-        | none => game;
-        | some => Mons.cast(pos, hero_idx, adve_idx, skill.value, game);
-      else game
-    else if U16.eql(cmd, 'D') then
-      Mons.Game.update((obj) Mons.Object.set_pad_r(obj, Bool.true), pos, hero_idx, game)
-    else if U16.eql(cmd, 'W') then
-      Mons.Game.update((obj) Mons.Object.set_pad_u(obj, Bool.true), pos, hero_idx, game)
-    else if U16.eql(cmd, 'A') then
-      Mons.Game.update((obj) Mons.Object.set_pad_l(obj, Bool.true), pos, hero_idx, game)
-    else if U16.eql(cmd, 'S') then
-      Mons.Game.update((obj) Mons.Object.set_pad_d(obj, Bool.true), pos, hero_idx, game)
-    else if U16.eql(cmd, 'd') then
-      Mons.Game.update((obj) Mons.Object.set_pad_r(obj, Bool.false), pos, hero_idx, game)
-    else if U16.eql(cmd, 'w') then
-      Mons.Game.update((obj) Mons.Object.set_pad_u(obj, Bool.false), pos, hero_idx, game)
-    else if U16.eql(cmd, 'a') then
-      Mons.Game.update((obj) Mons.Object.set_pad_l(obj, Bool.false), pos, hero_idx, game)
-    else if U16.eql(cmd, 's') then
-      Mons.Game.update((obj) Mons.Object.set_pad_d(obj, Bool.false), pos, hero_idx, game)
-
-    // else if U16.eql(cmd, 'O') then //TODO remove
-    //     let new_pos = Pos32.add(pos, Pos32.new(0u,0u,1u)) 
-    //     let game    = Mons.Game.move_obj(pos, hero_idx, new_pos, hero_obj, game)  
-    //     Mons.Game.set_user_pos(usr, new_pos, game)
-    // else if U16.eql(cmd, 'P') then //TODO remove
-    //     let new_pos = Pos32.sub(pos, Pos32.new(0u,0u,1u)) 
-    //     let game    = Mons.Game.move_obj(pos, hero_idx, new_pos, hero_obj, game)
-    //     Mons.Game.set_user_pos(usr, new_pos, game)
-      
-    else if U16.eql(cmd, 'e') then // Open hero's bag
-      if Bool.or(is_battling, end_battle) then game
-      else 
+    | explore => 
+      // Movement 
+      if Mons.is_walk_cmd(cmd) then 
+        Mons.Game.walk(cmd, pos, hero_idx, game)
+      // Inventory
+      else if U16.eql(cmd, 'e') then 
         Mons.Game.set_stt(Mons.Screen.inventory(0u), game)
-
-    // --------- End battle
-    else if U16.eql(cmd, 'c') then // Action to capture a Mon
-      case adve_obj.kin as kind:
-      | mon =>
-        if Mons.Object.is_obj_defeated(adve_obj) then
-          if kind.boss then
-            let hero_obj = Mons.Object.capture_boss(adve_obj, hero_obj)
-            Mons.Game.delete_adve_obj(adve_obj, hero_obj, pos, hero_idx, adve_idx, game)
-          else
-            if Mons.Object.is_full_bag(hero_obj) then
-              Mons.Game.set_stt(Mons.Screen.capture_mon(0u, Bool.true), game)
-            else
-              let hero_obj = Mons.Object.push_to_bag(adve_obj, hero_obj)
-              Mons.Game.delete_adve_obj(adve_obj, hero_obj, pos, hero_idx, adve_idx, game)
-        else if Mons.Object.is_obj_defeated(curr_mon) then
-            let adve_obj = Mons.Object.set_dmg(adve_obj, 0u) // adve heals all hp
-            let hero_obj = Mons.Object.delete_from_bag(hero_obj.mon, hero_obj)
-            let game = Mons.Game.map_set(pos, hero_idx, hero_obj, game)
-            let game = Mons.Game.map_set(pos, adve_idx, adve_obj, game)
-            let game = Mons.Game.move_hero_down(usr, hero_obj, pos, hero_idx, game)
-            Mons.Game.set_stt(Mons.Screen.game('.'), game)
-        else if Mons.Object.is_obj_defeated(hero_obj)
-        // hero lost, restore life do avoid game over
-          let hero_obj = Mons.Object.set_dmg(hero_obj, 0u)
-          let game = Mons.Game.map_set(pos, hero_idx, hero_obj, game)
-          Mons.Game.set_stt(Mons.Screen.game('.'), game)
-        else game
-      ;
-      | construction =>
-        let qtd_boss = Nat.to_u32(List.length<>(hero_obj.bos))
-        let can_use_portal = U32.eql(U32.add(hero_idx, 1u), qtd_boss)
-        if can_use_portal then
-          let new_pos = Pos32.add(pos, Pos32.new(0u,0u,1u)) 
-          let game    = Mons.Game.move_obj(pos, hero_idx, new_pos, hero_obj, game)  
-          Mons.Game.set_user_pos(usr, new_pos, game)
-        else game
-      ;
-      | terrain => Mons.Game.set_stt(Mons.Screen.game('.'), game);
-
-    else if U16.eql(cmd, 'z') then // Free Mon
-      if Mons.Object.is_obj_defeated(adve_obj) then
-        let game = Mons.Game.map_del(pos, adve_idx, game)
-        let game = Mons.Game.map_set(pos, hero_idx, hero_obj, game)
-        Mons.Game.set_stt(Mons.Screen.game('.'), game)
-      else game
-
-    else game ;
-
+      else 
+        game       
+    ;
     | inventory => 
-      if U16.eql(cmd, 'e') then
-        Mons.Game.set_stt(Mons.Screen.game('.'), game)
-      
-      else // update current Mon using 'w' or 's'
+      // Close inventory
+      if U16.eql(cmd, 'e') then 
+        Mons.Game.set_stt(Mons.Screen.explore, game)
+      // Select Mon
+      else 
         Mons.Object.change_curr_mon(
-          cmd, (cmd: U32) Mons.Screen.inventory(cmd),
-          pos, hero_obj, hero_idx, game);
-
-    | capture => // accessed by pressing "c" after battle
-      if U16.eql(cmd, 'c') then
-        // if stt.full_bag then // Update the current mon by the new one
-          let hero_obj = Mons.Object.delete_from_bag(hero_obj.mon, hero_obj)
-          let hero_obj = Mons.Object.push_to_bag(adve_obj, hero_obj)
-          let hero_obj = Mons.Object.set_mon(2u, hero_obj) // TODO: why 2u? review
-          let game = Mons.Game.map_del(pos, adve_idx, game)
-          let game = Mons.Game.map_set(pos, hero_idx, hero_obj, game)
-          Mons.Game.set_stt(Mons.Screen.game('.'), game)
-        // else
-        //   let hero_obj = Mons.Object.push_to_bag(adve_obj, hero_obj)
-        //   let game = Mons.Game.delete_adve_obj(adve_obj, hero_obj, pos, hero_idx, adve_idx, game)
-        //   Mons.Game.set_stt(Mons.Screen.game('.'), game)
-
-      else if U16.eql(cmd, 'z') then // Free Mon
-        if Mons.Object.is_obj_defeated(adve_obj) then
-          let game = Mons.Game.map_del(pos, adve_idx, game)
-          let game = Mons.Game.map_set(pos, hero_idx, hero_obj, game)
-          Mons.Game.set_stt(Mons.Screen.game('.'), game)
-        else game
-
-      else // update current Mon using 'w' or 's'
-        Mons.Object.change_curr_mon(
-          cmd, (cmd: U32) Mons.Screen.capture_mon(cmd, Bool.true),
+          cmd, (cmd: U32) Mons.Screen.inventory(cmd), 
           pos, hero_obj, hero_idx, game)
     ;
+    | battle => 
+      // Walk / Run 
+      if Mons.is_walk_cmd(cmd) then 
+        Mons.Game.walk(cmd, pos, hero_idx, game)
+      // Cast  
+      else if Mons.is_skill_cmd(cmd) then 
+        Mons.Game.exec_turn(cmd, pos, hero_obj, adve_obj, game)
+      else 
+        game 
+    ;
+    | won_battle => 
+      // Capture
+      if U16.eql(cmd, 'c') then 
+        let hero_obj = Mons.Object.delete_from_bag(hero_obj.mon, hero_obj)
+        let hero_obj = Mons.Object.push_to_bag(adve_obj, hero_obj)
+        let hero_obj = Mons.Object.set_mon(2u, hero_obj)
+        let game = Mons.Game.map_del(pos, adve_idx, game)
+        let game = Mons.Game.map_set(pos, hero_idx, hero_obj, game)
+        Mons.Game.set_stt(Mons.Screen.explore, game) 
+      // Free 
+      else if U16.eql(cmd, 'z') then 
+        let game = Mons.Game.map_del(pos, adve_idx, game)
+        let game = Mons.Game.map_set(pos, hero_idx, hero_obj, game)
+        Mons.Game.set_stt(Mons.Screen.explore, game) 
+      else 
+        game 
+    ;
+    // hero lost, restore life to avoid game over
+    | lost_battle => 
+      if U16.eql(cmd, 'c') then 
+        let hero_obj = Mons.Object.set_dmg(hero_obj, 0u)
+        let game = Mons.Game.map_set(pos, hero_idx, hero_obj, game)
+        Mons.Game.set_stt(Mons.Screen.explore, game) 
+      else 
+        game 
+    ;
+    | portal => 
+      // Walk 
+      if Mons.is_walk_cmd(cmd) then 
+        let game = Mons.Game.walk(cmd, pos, hero_idx, game)
+        Mons.Game.set_stt(Mons.Screen.explore, game) 
+      // Use portal  
+      else if U16.eql(cmd, 'c') then 
+       Mons.Game.use_portal(pos, hero_obj, hero_idx, usr, game)
+      else 
+        game 
+    ;
   ;
+  
+// Mons.Game.cmd2(cmd: Char, usr: Word(160), game: Mons.Game): Mons.Game
+//   let pos = Mons.Game.get_user_pos(usr, game)
+//   case pos:
+//   // New player
+//   | let pos = Pos32.new(2048u, 2048u, 0u)
+//     let obj = Mons.Object.hero
+//     let game = Mons.Game.map_push(pos, obj, game)
+//     let game = Mons.Game.set_user_pos(usr, pos, game)
+//     game;
+//   // Existing player
+//   | open game:
+//     let pos = pos.value
+//     let hero_pair = Mons.Map.get_hero(pos, game.map)
+//     let hero_obj  = Pair.fst<,>(hero_pair)
+//     let hero_idx  = Pair.snd<,>(hero_pair)
+//     let adve_idx  = 1u
+//     let adve_obj = Mons.Map.get(pos, adve_idx, game.map)
+//     let is_battling = Mons.Object.is_battling(adve_obj, hero_obj)
+//     let end_battle = Mons.Object.ended_battle(adve_obj, hero_obj)
+//     let curr_mon = Mons.Object.get_current_mon(hero_obj)
+//     open curr_mon: 
+//     let skills = Mons.Kind.get_skills(curr_mon.kin)
+//     // let game = Mons.test.add_bag(hero_obj, pos, 0u, game) // TEST - bag
+//     // let game = Mons.test.add_boss(hero_obj, pos, 0u, game) // TEST - boss
+
+//     open hero_obj:
+//     open adve_obj:
+//     // TODO let usr = Mons.Game.get_from_map(pos, game) // gets the object that used the command
+//     // TODO let atks = Mons.Game.get_attack_list(usr.kin)... // gets the attack list of that usr
+//     case game.stt as stt:
+//     | game =>
+//     // TODO remove - just testing dmg to hero to check heal eff
+//     if U16.eql(cmd, 'T') then
+//       if Mons.Object.is_obj_defeated(hero_obj) then
+//         let hero_obj = Mons.Object.set_dmg(hero_obj, 0u)
+//         Mons.Game.map_set(pos, hero_idx, hero_obj, game)
+//       else if Mons.Object.is_obj_defeated(curr_mon) then game
+//       else Mons.cast(pos, hero_idx, hero_idx, Mons.Skill.Dummy_hit, game)
+
+//     else if U16.eql(cmd, 'U') then
+//       if is_battling then
+//         case List.at<>(0, skills) as skill:
+//         | none => game;
+//         | some => Mons.cast(pos, hero_idx, adve_idx, skill.value, game);
+//       else game
+//     else if U16.eql(cmd, 'I') then
+//       if is_battling then
+//         case List.at<>(1, skills) as skill:
+//         | none => game;
+//         | some => Mons.cast(pos, hero_idx, adve_idx, skill.value, game);
+//       else game
+//     else if U16.eql(cmd, 'J') then
+//       if is_battling then
+//         case List.at<>(2, skills) as skill:
+//         | none => game;
+//         | some => Mons.cast(pos, hero_idx, adve_idx, skill.value, game);
+//       else game
+//     else if U16.eql(cmd, 'K') then
+//       if is_battling then
+//         case List.at<>(3, skills) as skill:
+//         | none => game;
+//         | some => Mons.cast(pos, hero_idx, adve_idx, skill.value, game);
+//       else game
+//     else if U16.eql(cmd, 'D') then
+//       Mons.Game.update((obj) Mons.Object.set_pad_r(obj, Bool.true), pos, hero_idx, game)
+//     else if U16.eql(cmd, 'W') then
+//       Mons.Game.update((obj) Mons.Object.set_pad_u(obj, Bool.true), pos, hero_idx, game)
+//     else if U16.eql(cmd, 'A') then
+//       Mons.Game.update((obj) Mons.Object.set_pad_l(obj, Bool.true), pos, hero_idx, game)
+//     else if U16.eql(cmd, 'S') then
+//       Mons.Game.update((obj) Mons.Object.set_pad_d(obj, Bool.true), pos, hero_idx, game)
+//     else if U16.eql(cmd, 'd') then
+//       Mons.Game.update((obj) Mons.Object.set_pad_r(obj, Bool.false), pos, hero_idx, game)
+//     else if U16.eql(cmd, 'w') then
+//       Mons.Game.update((obj) Mons.Object.set_pad_u(obj, Bool.false), pos, hero_idx, game)
+//     else if U16.eql(cmd, 'a') then
+//       Mons.Game.update((obj) Mons.Object.set_pad_l(obj, Bool.false), pos, hero_idx, game)
+//     else if U16.eql(cmd, 's') then
+//       Mons.Game.update((obj) Mons.Object.set_pad_d(obj, Bool.false), pos, hero_idx, game)
+
+//     // else if U16.eql(cmd, 'O') then //TODO remove
+//     //     let new_pos = Pos32.add(pos, Pos32.new(0u,0u,1u)) 
+//     //     let game    = Mons.Game.move_obj(pos, hero_idx, new_pos, hero_obj, game)  
+//     //     Mons.Game.set_user_pos(usr, new_pos, game)
+//     // else if U16.eql(cmd, 'P') then //TODO remove
+//     //     let new_pos = Pos32.sub(pos, Pos32.new(0u,0u,1u)) 
+//     //     let game    = Mons.Game.move_obj(pos, hero_idx, new_pos, hero_obj, game)
+//     //     Mons.Game.set_user_pos(usr, new_pos, game)
+      
+//     else if U16.eql(cmd, 'e') then // Open hero's bag
+//       if Bool.or(is_battling, end_battle) then game
+//       else 
+//         Mons.Game.set_stt(Mons.Screen.inventory(0u), game)
+
+//     // --------- End battle
+//     else if U16.eql(cmd, 'c') then // Action to capture a Mon
+//       case adve_obj.kin as kind:
+//       | mon =>
+//         if Mons.Object.is_obj_defeated(adve_obj) then
+//           if kind.boss then
+//             let hero_obj = Mons.Object.capture_boss(adve_obj, hero_obj)
+//             Mons.Game.delete_adve_obj(adve_obj, hero_obj, pos, hero_idx, adve_idx, game)
+//           else
+//             if Mons.Object.is_full_bag(hero_obj) then
+//               Mons.Game.set_stt(Mons.Screen.capture_mon(0u, Bool.true), game)
+//             else
+//               let hero_obj = Mons.Object.push_to_bag(adve_obj, hero_obj)
+//               Mons.Game.delete_adve_obj(adve_obj, hero_obj, pos, hero_idx, adve_idx, game)
+//         else if Mons.Object.is_obj_defeated(curr_mon) then
+//             let adve_obj = Mons.Object.set_dmg(adve_obj, 0u) // adve heals all hp
+//             let hero_obj = Mons.Object.delete_from_bag(hero_obj.mon, hero_obj)
+//             let game = Mons.Game.map_set(pos, hero_idx, hero_obj, game)
+//             let game = Mons.Game.map_set(pos, adve_idx, adve_obj, game)
+//             let game = Mons.Game.move_hero_down(usr, hero_obj, pos, hero_idx, game)
+//             Mons.Game.set_stt(Mons.Screen.game('.'), game)
+//         else if Mons.Object.is_obj_defeated(hero_obj)
+//         // hero lost, restore life do avoid game over
+//           let hero_obj = Mons.Object.set_dmg(hero_obj, 0u)
+//           let game = Mons.Game.map_set(pos, hero_idx, hero_obj, game)
+//           Mons.Game.set_stt(Mons.Screen.game('.'), game)
+//         else game
+//       ;
+//       | construction =>
+//         let qtd_boss = Nat.to_u32(List.length<>(hero_obj.bos))
+//         let can_use_portal = U32.eql(U32.add(hero_idx, 1u), qtd_boss)
+//         if can_use_portal then
+//           let new_pos = Pos32.add(pos, Pos32.new(0u,0u,1u)) 
+//           let game    = Mons.Game.move_obj(pos, hero_idx, new_pos, hero_obj, game)  
+//           Mons.Game.set_user_pos(usr, new_pos, game)
+//         else game
+//       ;
+//       | terrain => Mons.Game.set_stt(Mons.Screen.game('.'), game);
+
+//     else if U16.eql(cmd, 'z') then // Free Mon
+//       if Mons.Object.is_obj_defeated(adve_obj) then
+//         let game = Mons.Game.map_del(pos, adve_idx, game)
+//         let game = Mons.Game.map_set(pos, hero_idx, hero_obj, game)
+//         Mons.Game.set_stt(Mons.Screen.game('.'), game)
+//       else game
+
+//     else game ;
+
+//     | inventory => 
+//       if U16.eql(cmd, 'e') then
+//         Mons.Game.set_stt(Mons.Screen.game('.'), game)
+      
+//       else // update current Mon using 'w' or 's'
+//         Mons.Object.change_curr_mon(
+//           cmd, (cmd: U32) Mons.Screen.inventory(cmd),
+//           pos, hero_obj, hero_idx, game);
+
+//     | capture => // accessed by pressing "c" after battle
+//       if U16.eql(cmd, 'c') then
+//         // if stt.full_bag then // Update the current mon by the new one
+//           let hero_obj = Mons.Object.delete_from_bag(hero_obj.mon, hero_obj)
+//           let hero_obj = Mons.Object.push_to_bag(adve_obj, hero_obj)
+//           let hero_obj = Mons.Object.set_mon(2u, hero_obj) // TODO: why 2u? review
+//           let game = Mons.Game.map_del(pos, adve_idx, game)
+//           let game = Mons.Game.map_set(pos, hero_idx, hero_obj, game)
+//           Mons.Game.set_stt(Mons.Screen.game('.'), game)
+//         // else
+//         //   let hero_obj = Mons.Object.push_to_bag(adve_obj, hero_obj)
+//         //   let game = Mons.Game.delete_adve_obj(adve_obj, hero_obj, pos, hero_idx, adve_idx, game)
+//         //   Mons.Game.set_stt(Mons.Screen.game('.'), game)
+
+//       else if U16.eql(cmd, 'z') then // Free Mon
+//         if Mons.Object.is_obj_defeated(adve_obj) then
+//           let game = Mons.Game.map_del(pos, adve_idx, game)
+//           let game = Mons.Game.map_set(pos, hero_idx, hero_obj, game)
+//           Mons.Game.set_stt(Mons.Screen.game('.'), game)
+//         else game
+
+//       else // update current Mon using 'w' or 's'
+//         Mons.Object.change_curr_mon(
+//           cmd, (cmd: U32) Mons.Screen.capture_mon(cmd, Bool.true),
+//           pos, hero_obj, hero_idx, game)
+//     ;
+//   ;
 
 // Update the current Mon by changing it with the keys 'w' (up) and 's' (down)
 Mons.Object.change_curr_mon(
@@ -1256,6 +1393,57 @@ Mons.key_to_dir(key_code: U16): Maybe(Mons.Dir)
     Maybe.some<>(Mons.Dir.down)
   else
     Maybe.none<>
+
+Mons.dir_to_set_pad(dir: Mons.Dir): Mons.Object -> Bool -> Mons.Object
+  case dir:
+  | r => Mons.Object.set_pad_r;
+  | u => Mons.Object.set_pad_u;
+  | l => Mons.Object.set_pad_l;
+  | d => Mons.Object.set_pad_d;
+
+Mons.is_walk_cmd(cmd: Char): Bool
+  List.elem<>(Char.eql, cmd, ['W','A','S','D','w','a','s','d'])
+
+Mons.Game.walk(cmd: Char, pos: Pos32, idx: U32, game: Mons.Game): Mons.Game
+  open game:
+  case Mons.key_to_dir(cmd) as maybe_dir:
+  | none => game; //unreachable
+  | some => 
+    let dir        = maybe_dir.value
+    let set_pad    = Mons.dir_to_set_pad(dir)
+    let flag       = Char.is_upper(cmd)
+    let game       = Mons.Game.update((obj) set_pad(obj, flag), pos, idx, game)
+    let new_pos    = Mons.Dir.move(dir, pos)
+    let target_obj = Mons.Map.get_top(new_pos, game.map)
+    open target_obj:
+    case target_obj.kin as kind:
+    | mon => Mons.Game.set_stt(Mons.Screen.battle, game);
+    | construction => 
+      case kind.portal:
+      | true  => Mons.Game.set_stt(Mons.Screen.portal, game);
+      | false => Mons.Game.set_stt(Mons.Screen.explore, game);
+    ;
+    | terrain => Mons.Game.set_stt(Mons.Screen.explore, game);
+  ;
+
+Mons.Game.use_portal(
+  hero_pos: Pos32, 
+  hero_obj: Mons.Object, 
+  hero_idx: U32, 
+  usr     : Word(160),
+  game    : Mons.Game): Mons.Game
+  open hero_obj: 
+  let qtd_boss = Nat.to_u32(List.length<>(hero_obj.bos))
+  let can_use_portal = U32.eql(U32.add(hero_idx, 1u), qtd_boss)
+  if can_use_portal then
+    let new_pos = Pos32.add(hero_pos, Pos32.new(0u,0u,1u)) 
+    let game    = Mons.Game.move_obj(hero_pos, hero_idx, new_pos, hero_obj, game)  
+    Mons.Game.set_user_pos(usr, new_pos, game)
+  else game
+
+Mons.is_skill_cmd(cmd: Char): Bool
+    List.elem<>(Char.eql, cmd, ['U','I','J','K'])
+
 
 //Mons.game_sprites.push_obj(t_x: U32, t_y: U32, obj: Mons.Object, sprs: List(Mons.Sprite)): List(Mons.Sprite)
   //for img in Mons.Object.get_images(t_x, t_y, obj) with sprs:
@@ -1481,7 +1669,7 @@ Mons.start(online: Bool): App(Mons.Game)
   | let game_usr = Word.zero(160)
     let game_pos = Map.new<>
     let game_map = Mons.Map.build(Mons.map_source)
-    Mons.Game.new(game_usr, game_pos, game_map, Mons.Screen.game('.'));
+    Mons.Game.new(game_usr, game_pos, game_map, Mons.Screen.explore);
   // Render function
   | (game) App.Render.vox(Mons.draw(game, screen));
   // Event handlers
