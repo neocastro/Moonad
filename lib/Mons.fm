@@ -1284,6 +1284,7 @@ Mons.Game.walk(cmd: Char, pos: Pos32, idx: U32, game: Mons.Game): Mons.Game
     let flag    = Char.is_upper(cmd)
     let game    = Mons.Game.update((obj) set_pad(obj, flag), pos, idx, game)
     open game: 
+    // TODO FIX DRAWING WHEN LEAVING BATTLE
     if Char.is_lower(cmd) then 
       let obj_below = Mons.Map.get(pos, 1u, game.map)
       open obj_below:
@@ -1298,8 +1299,6 @@ Mons.Game.walk(cmd: Char, pos: Pos32, idx: U32, game: Mons.Game): Mons.Game
       Mons.Game.set_stt(new_screen, game)
     else 
       game 
-     
-
   ;
    
 
