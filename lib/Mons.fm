@@ -114,6 +114,18 @@ T Mons.Screen
 | Mons.Screen.portal;
 // | Mons.Screen.game_over;
 
+//TODO remove 
+Mons.show_screen(stt: Mons.Screen): String
+  case stt:
+  | "explore";
+  | "inventory";
+  | "battle";
+  | "won_battle";
+  | "replace_mon";
+  | "lost_battle";
+  | "portal";
+
+
 T Mons.Type
 | Mons.Type.normal;
 | Mons.Type.earth;
@@ -1085,6 +1097,8 @@ Mons.Game.cmd(cmd: Char, usr: Word(160), game: Mons.Game): Mons.Game
     let adve_obj = Mons.Map.get(pos, adve_idx, game.map)
     open hero_obj: 
     open adve_obj:
+    use skp = Debug.log<>(String.concat("Screen:", Mons.show_screen(game.stt)))
+    use skp = Debug.log<>(String.concat("Got input:", String.pure(cmd)))
     case game.stt as stt:
     | explore => 
       // Movement 
@@ -1243,9 +1257,9 @@ Mons.key_to_dir(key_code: U16): Maybe(Mons.Dir)
     Maybe.some<>(Mons.Dir.left)
   else if Bool.or(U16.eql(key_code, 'D'), U16.eql(key_code, 'd')) then
     Maybe.some<>(Mons.Dir.right)
-  else if Bool.or(U16.eql(key_code, 'W'), U16.eql(key_code, 'W')) then
+  else if Bool.or(U16.eql(key_code, 'W'), U16.eql(key_code, 'w')) then
     Maybe.some<>(Mons.Dir.up)
-  else if Bool.or(U16.eql(key_code, 'S'), U16.eql(key_code, 'S')) then
+  else if Bool.or(U16.eql(key_code, 'S'), U16.eql(key_code, 's')) then
     Maybe.some<>(Mons.Dir.down)
   else
     Maybe.none<>
@@ -1265,22 +1279,29 @@ Mons.Game.walk(cmd: Char, pos: Pos32, idx: U32, game: Mons.Game): Mons.Game
   case Mons.key_to_dir(cmd) as maybe_dir:
   | none => game; //unreachable
   | some => 
-    let dir        = maybe_dir.value
-    let set_pad    = Mons.dir_to_set_pad(dir)
-    let flag       = Char.is_upper(cmd)
-    let game       = Mons.Game.update((obj) set_pad(obj, flag), pos, idx, game)
-    let new_pos    = Mons.Dir.move(dir, pos)
-    let target_obj = Mons.Map.get_top(new_pos, game.map)
-    open target_obj:
-    case target_obj.kin as kind:
-    | mon => Mons.Game.set_stt(Mons.Screen.battle, game);
-    | construction => 
-      case kind.portal:
-      | true  => Mons.Game.set_stt(Mons.Screen.portal, game);
-      | false => Mons.Game.set_stt(Mons.Screen.explore, game);
-    ;
-    | terrain => Mons.Game.set_stt(Mons.Screen.explore, game);
+    let dir     = maybe_dir.value
+    let set_pad = Mons.dir_to_set_pad(dir)
+    let flag    = Char.is_upper(cmd)
+    let game    = Mons.Game.update((obj) set_pad(obj, flag), pos, idx, game)
+    open game: 
+    if Char.is_lower(cmd) then 
+      let obj_below = Mons.Map.get(pos, 1u, game.map)
+      open obj_below:
+      let new_screen = 
+        case obj_below.kin:
+        | mon => Mons.Screen.battle;
+        | construction => 
+          case obj_below.kin.portal:
+          | Mons.Screen.portal;
+          | Mons.Screen.explore;;
+        | terrain => Mons.Screen.explore;   
+      Mons.Game.set_stt(new_screen, game)
+    else 
+      game 
+     
+
   ;
+   
 
 Mons.Game.use_portal(
   hero_pos: Pos32, 
